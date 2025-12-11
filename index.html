@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noel Này Đi Đâu? 🎄</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+        :root {
+            --red: #c0392b;
+            --green: #27ae60;
+            --white: #fff;
+            --bg-gradient: radial-gradient(circle, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+        }
+
+        body {
+            background: #c0392b;
+            font-family: 'Patrick Hand', cursive;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* --- Hiệu ứng tuyết rơi --- */
+        .snowflake {
+            color: #fff;
+            font-size: 1.2em;
+            position: fixed;
+            top: -10%;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation: snowflakes-fall 10s linear infinite, snowflakes-shake 3s ease-in-out infinite;
+        }
+
+        @keyframes snowflakes-fall {
+            0% {
+                top: -10%;
+            }
+
+            100% {
+                top: 100%;
+            }
+        }
+
+        @keyframes snowflakes-shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(80px);
+            }
+        }
+
+        /* --- Container Chính --- */
+        .screen {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border: 4px dashed var(--green);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            margin: 0;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        #screen-1 {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        h1 {
+            color: var(--red);
+            font-size: 2.2rem;
+            margin: 0 0 10px;
+        }
+
+        h2 {
+            color: var(--green);
+            font-size: 1.8rem;
+            margin: 0 0 15px;
+        }
+
+        p {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .meme-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--red);
+            margin: 0 auto 15px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Patrick Hand', cursive;
+            transition: all 0.2s;
+            font-weight: bold;
+            margin: 5px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f39c12;
+            color: white;
+        }
+
+        /* Select box */
+        .custom-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid var(--green);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            outline: none;
+        }
+
+        /* Input box cho phần tự nhập */
+        .custom-input {
+            width: 90%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px dashed var(--red);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            background: #fff;
+            outline: none;
+            display: none;
+            /* Mặc định ẩn */
+        }
+
+        .btn-container {
+            height: 70px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        #btnNo {
+            position: relative;
+            z-index: 100;
+            transition: top 0.1s, left 0.1s;
+        }
+
+        /* --- MODAL (POPUP) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 20000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 85%;
+            width: 320px;
+            border: 4px solid var(--red);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .modal-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn-group .btn {
+            width: 100%;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="nen.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="screen-1" class="screen">
+        <img class="meme-img" src="meme.jpg" alt="Meme">
+        <h1>Ê Noel đi chơi hông?????</h1>
+        <p>Ở nhà tự kỉ quá! Đi lượn đi :3</p>
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="goToScreen(2)">Đi luôn</button>
+            <button class="btn btn-danger" id="btnNo" onmouseover="runAway()" onclick="runAway()">Đéo!!!!</button>
+        </div>
+    </div>
+
+    <div id="screen-2" class="screen">
+        <h2>📍 Đi đâu được???</h2>
+        <p>Đi loanh quanh Hà Nội nhé?</p>
+
+        <select id="locationSelect" class="custom-select" onchange="judgeChoice(this, 'loc')">
+            <option value="" disabled selected>-- Chọn đê --</option>
+            <option value="Hồ Tây">Hồ Tây</option>
+            <option value="EonMall">EonMall</option>
+            <option value="Phố Đi Bộ">Phố Đi Bộ</option>
+            <option value="Lotte Mall">Lotte Mall</option>
+            <option value="Nhà nghỉ">Nhà nghỉ</option>
+            <option value="other_loc">Muốn đi chỗ khác</option>
+        </select>
+
+        <input type="text" id="otherLocation" class="custom-input" placeholder="Nhập địa điểm muốn đi vào đây...">
+
+        <button class="btn btn-secondary" onclick="showModal('modal-poverty')">Hay bấy bì thích xuất ngoại?</button>
+        <br><br>
+        <button class="btn btn-primary" onclick="validateAndNext(2, 3)">Chốt điểm này</button>
+    </div>
+
+    <div id="screen-3" class="screen">
+        <h2>🍜 Thế ăn cái gì?</h2>
+        <p>Ăn sập Hà Nội:</p>
+
+        <select id="foodSelect" class="custom-select" onchange="judgeChoice(this, 'food')">
+            <option value="" disabled selected>-- Chọn món đê --</option>
+            <option value="Lẩu">Lẩu</option>
+            <option value="Nướng">Nướng</option>
+            <option value="Ốc">Ốc</option>
+            <option value="Ăn shit">Ăn shit</option>
+            <option value="Ăn đấm">Ăn đấm (???)</option>
+            <option value="other_food">Thích ăn cái khác</option>
+        </select>
+
+        <input type="text" id="otherFood" class="custom-input" placeholder="Muốn ăn sơn hào hải vị gì? Nhập đê...">
+
+        <button class="btn btn-primary" onclick="validateAndNext(3, 4)">Tiếp tục</button>
+    </div>
+
+    <div id="screen-4" class="screen">
+        <img class="meme-img" src="meme.jpg" alt="Money Meme">
+        <h2>💸 Vấn đề nhạy cảm: Ai trả tiền?</h2>
+        <p>Chọn hộ cái coi:</p>
+        <select id="paySelect" class="custom-select" onchange="judgeChoice(this, 'pay')">
+            <option value="" disabled selected>-- Ai trả tiền? --</option>
+            <option value="Mấy bạn bao tui">Mấy bạn bao tui</option>
+            <option value="Campuchia (Nhưng mấy bạn chịu 90%)">Campuchia (Nhưng mấy bạn chịu 90%)</option>
+            <option value="Tao bao (Tao mới trúng số)">Tao bao (Tao mới trúng số)</option>
+            <option value="Nhịn">Nhịn</option>
+        </select>
+        <button class="btn btn-primary" onclick="validateAndNext(4, 'finish')">CHỐT ĐƠN 🚀</button>
+    </div>
+
+    <div id="screen-5" class="screen">
+        <h1>🎉 DONE KÈO!</h1>
+        <p>Chụp màn hình lại gửi tao ngay nhé!</p>
+        <div
+            style="background: #fff; padding: 15px; border: 2px dashed #333; border-radius: 10px; text-align: left; margin-bottom: 20px;">
+            <p style="margin:5px 0">📍 <b>Đi chơi ở:</b> <span id="res-loc" style="color:var(--red)">...</span></p>
+            <p style="margin:5px 0">🍜 <b>Ăn:</b> <span id="res-food" style="color:var(--red)">...</span></p>
+            <p style="margin:5px 0">💸 <b>Người chi:</b> <span id="res-pay" style="color:var(--green)">...</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="sendInbox()">Alo để chốt kèo 😎</button>
+    </div>
+
+    <div id="modal-judge" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" id="judge-icon">🤔</div>
+            <div class="modal-text" id="judge-text">...</div>
+            <div class="modal-btn-group">
+                <button class="btn btn-danger" id="btn-judge-keep" onclick="confirmJudge()">Kệ tao, tao thích
+                    thế!</button>
+                <button class="btn btn-secondary" onclick="resetJudge()">Thì chọn cái khác🙄</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-force" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: var(--red);">👿</div>
+            <div class="modal-text"><b>:))))</b><br>Lêu lêu không chọn được đâu</div>
+            <button class="btn btn-primary" onclick="acceptForce()">(Cam chịu)</button>
+        </div>
+    </div>
+
+    <div id="modal-poverty" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: #f39c12;">😒</div>
+            <div class="modal-text"><b>Ồ HỔ!</b><br>Nghèo mà bày đặt làm sang quá má :)))) <br>Sống với thực tại đê!
+            </div>
+            <button class="btn btn-primary" onclick="closeModal('modal-poverty')">Biết rồi khổ lắm 😭</button>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: var(--green);">💖</div>
+            <div class="modal-text"><b>CHỐT KÈO NHÉ!</b><br>Đơn đã được xác nhận. <br>Chuẩn bị tiền đi là vừa!</div>
+            <button class="btn btn-primary" onclick="showSummary()">Phải OK👌</button>
+        </div>
+    </div>
+
+    <div id="modal-warning" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: var(--red);">⚠️</div>
+            <div class="modal-text" id="warn-text"><b>CHƯA CHỌN KÌA!</b><br>Rất là ăn bớt quá trình đấy nhá!.</div>
+            <button class="btn btn-primary" onclick="closeModal('modal-warning')">Để chọn lại</button>
+        </div>
+    </div>
+
+    <script>
+        const roasts = {
+            "Hồ Tây": "Lên đấy hít bụi mịn với ăn cẩu lương à? 😒",
+            "EonMall": "Đi lượn lượn rồi không mua gì đúng không? T đọc m như cuốn sách",
+            "Phố Đi Bộ": "Lên ghép đôi hay gì?",
+            "Lotte Mall": "Lại đi lượn rồi không mua gì:))))",
+            "Nhà nghỉ": "Vào đánh bài à?",
+            "Lẩu": "Lúc nào cũng lẩu!",
+            "Nướng": "Nướng vỉa hè hợp lý nè!",
+            "Ốc": "Ngồi chấm mút chấm mút!",
+            "Ăn shit": "Hóa ra m lại thích món này à? EWWWWWW!",
+            "Ăn đấm": "Đưa mặt ra đây để t bón 👊",
+            "Mấy bạn bao tui": "Khôn như mày quê tao xích đầy ngoài cổng!",
+            "Campuchia (Nhưng mấy bạn chịu 90%)": "Không ưng lắm nhưng tạm chấp nhận đấy!",
+            "Tao bao (Tao mới trúng số)": "Mày điên à? Tiền đâu mà bao? 😡 Hệ thống từ chối vì lý do: 'tiến có đèo'.",
+            "Nhịn": "Đi chơi mà đòi nhịn? Ở nhà cho lành!",
+
+            // Roast cho phần tự nhập
+            "other_loc": "Chịu! Thích chỗ nào thì tự ghi vào đó 😒",
+            "other_food": "M định ăn hải sản chứ gì! 😒"
+        };
+
+        let currentSelectElement = null;
+        let chaseCount = 0;
+
+        // --- 0. TỰ ĐỘNG PHÁT NHẠC (ĐÃ FIX) ---
+        // Hàm này sẽ tự động chạy khi web tải xong
+        // Nó sẽ chờ cú click chuột hoặc chạm tay đầu tiên để bật nhạc
+        document.addEventListener('DOMContentLoaded', function () {
+            var audio = document.getElementById("bgMusic");
+
+            // Thử phát luôn (một số trình duyệt sẽ chặn)
+            var playPromise = audio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay thành công
+                    console.log("Nhạc đã lên!");
+                })
+                    .catch(error => {
+                        // Nếu bị chặn, sẽ chờ người dùng tương tác
+                        console.log("Chờ người dùng tương tác để phát nhạc...");
+                        var playOnInteraction = function () {
+                            audio.play();
+                            // Gỡ bỏ sự kiện sau khi đã phát được nhạc
+                            document.removeEventListener('click', playOnInteraction);
+                            document.removeEventListener('mousemove', playOnInteraction);
+                            document.removeEventListener('touchstart', playOnInteraction);
+                            document.removeEventListener('keydown', playOnInteraction);
+                        };
+
+                        // Gắn sự kiện vào toàn bộ trang web
+                        document.addEventListener('click', playOnInteraction);
+                        document.addEventListener('mousemove', playOnInteraction);
+                        document.addEventListener('touchstart', playOnInteraction);
+                        document.addEventListener('keydown', playOnInteraction);
+                    });
+            }
+        });
+
+        // --- 1. LOGIC NÚT CHẠY TRỐN ---
+        function runAway() {
+            const btnNo = document.getElementById('btnNo');
+            chaseCount++;
+            if (chaseCount >= 5) {
+                btnNo.style.display = 'none';
+                showModal('modal-force');
+                return;
+            }
+            if (btnNo.parentNode !== document.body) {
+                document.body.appendChild(btnNo);
+            }
+            btnNo.style.position = 'fixed'; btnNo.style.zIndex = '9999';
+            const maxWidth = window.innerWidth - btnNo.offsetWidth - 20;
+            const maxHeight = window.innerHeight - btnNo.offsetHeight - 20;
+            const newX = Math.random() * maxWidth;
+            const newY = Math.random() * maxHeight;
+            btnNo.style.left = Math.max(20, newX) + 'px';
+            btnNo.style.top = Math.max(20, newY) + 'px';
+        }
+
+        function acceptForce() { closeModal('modal-force'); goToScreen(2); }
+
+        // --- 2. LOGIC PHÁN XÉT & HIỆN Ô NHẬP ---
+        function judgeChoice(selectElement, type) {
+            currentSelectElement = selectElement;
+            const val = selectElement.value;
+            const btnKeep = document.getElementById('btn-judge-keep');
+
+            // Logic ẩn hiện ô Input
+            if (type === 'loc') {
+                const inputLoc = document.getElementById('otherLocation');
+                if (val === 'other_loc') inputLoc.style.display = 'block';
+                else inputLoc.style.display = 'none';
+            }
+            if (type === 'food') {
+                const inputFood = document.getElementById('otherFood');
+                if (val === 'other_food') inputFood.style.display = 'block';
+                else inputFood.style.display = 'none';
+            }
+
+            let msg = roasts[val] || "Chọn cái này thật á? Gu mặn vãi...";
+            let icon = "🤔";
+            if (type === 'pay') icon = "💸";
+            if (type === 'food') icon = "🍜";
+
+            // Logic cấm chọn "Tao bao"
+            if (val === "Tao bao (Tao mới trúng số)") {
+                icon = "🚫";
+                btnKeep.style.display = 'none';
+            } else {
+                btnKeep.style.display = 'inline-block';
+            }
+
+            document.getElementById('judge-text').innerText = msg;
+            document.getElementById('judge-icon').innerText = icon;
+            showModal('modal-judge');
+        }
+
+        function confirmJudge() { closeModal('modal-judge'); }
+        function resetJudge() {
+            closeModal('modal-judge');
+            if (currentSelectElement) {
+                currentSelectElement.selectedIndex = 0;
+                // Nếu reset, ẩn luôn ô input nếu đang hiện
+                if (currentSelectElement.id === 'locationSelect') document.getElementById('otherLocation').style.display = 'none';
+                if (currentSelectElement.id === 'foodSelect') document.getElementById('otherFood').style.display = 'none';
+            }
+        }
+
+        // --- 3. VALIDATE & NEXT ---
+        function validateAndNext(currentStep, nextStep) {
+            let valid = true;
+            let warnMsg = "Rất là ăn bớt quá trình đấy nhá!";
+
+            // Validate Screen 2 (Location)
+            if (currentStep === 2) {
+                const locVal = document.getElementById('locationSelect').value;
+                if (locVal === "") valid = false;
+                // Nếu chọn tự nhập mà để trống
+                if (locVal === 'other_loc' && document.getElementById('otherLocation').value.trim() === "") {
+                    valid = false;
+                    warnMsg = "Nhập vào thì mới biết đi đâu chứ! T có đọc đc cái m nghĩ đâu?";
+                }
+            }
+
+            // Validate Screen 3 (Food)
+            if (currentStep === 3) {
+                const foodVal = document.getElementById('foodSelect').value;
+                if (foodVal === "") valid = false;
+                // Nếu chọn tự nhập mà để trống
+                if (foodVal === 'other_food' && document.getElementById('otherFood').value.trim() === "") {
+                    valid = false;
+                    warnMsg = "Ghi đi? Hay thích ăn shit thật?";
+                }
+            }
+
+            // Validate Screen 4 (Pay)
+            if (currentStep === 4) {
+                const payVal = document.getElementById('paySelect').value;
+                if (payVal === "") valid = false;
+                if (payVal === "Tao bao") {
+                    alert("Đã bảo là không có tiền mà! Chọn lại đi!");
+                    return;
+                }
+            }
+
+            if (!valid) {
+                document.getElementById('warn-text').innerHTML = `<b>CHƯA XONG ĐÂU!</b><br>${warnMsg}`;
+                showModal('modal-warning');
+                return;
+            }
+
+            if (nextStep === 'finish') {
+                showModal('modal-confirm');
+            } else {
+                goToScreen(nextStep);
+            }
+        }
+
+        function goToScreen(screenId) {
+            // Đảm bảo nhạc chạy nếu chưa chạy
+            playMusic();
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById('screen-' + screenId).style.display = 'block';
+        }
+
+        // --- 4. TỔNG KẾT ---
+        function showSummary() {
+            closeModal('modal-confirm');
+
+            // Lấy giá trị Location
+            let loc = document.getElementById('locationSelect').value;
+            if (loc === 'other_loc') {
+                // Nếu chọn tự nhập thì lấy text trong ô input
+                loc = document.getElementById('otherLocation').value + " (Do m chọn đấy)";
+            }
+
+            // Lấy giá trị Food
+            let food = document.getElementById('foodSelect').value;
+            if (food === 'other_food') {
+                food = document.getElementById('otherFood').value + " (Duyệt)";
+            }
+
+            let pay = document.getElementById('paySelect').value;
+
+            document.getElementById('res-loc').innerText = loc;
+            document.getElementById('res-food').innerText = food;
+            document.getElementById('res-pay').innerText = pay;
+            goToScreen(5);
+        }
+
+        function sendInbox() {
+            alert("Đang mở Messenger... Nhớ gửi ảnh chụp màn hình này nhé!");
+            window.location.href = "https://www.facebook.com/chamt.huyen.10/";
+        }
+
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Hàm helper phát nhạc
+        function playMusic() {
+            var audio = document.getElementById("bgMusic");
+            if (audio.paused) audio.play().catch(e => console.log("Đang chờ tương tác..."));
+        }
+
+        // Tạo tuyết rơi
+        function createSnow() {
+            for (let i = 0; i < 30; i++) {
+                let snow = document.createElement("div");
+                snow.className = "snowflake";
+                snow.innerHTML = ["❄", "❅", "❆"][Math.floor(Math.random() * 3)];
+                snow.style.left = Math.random() * 100 + "%";
+                snow.style.animationDelay = Math.random() * 5 + "s";
+                document.body.appendChild(snow);
+            }
+        }
+        createSnow();
+    </script>
+</body>
+
+</html>
